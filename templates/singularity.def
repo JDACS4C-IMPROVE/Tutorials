@@ -1,0 +1,20 @@
+BootStrap: docker
+From: ubuntu:20.04
+
+%post
+    apt-get -y update
+    apt-get -y install cowsay lolcat
+
+%environment
+    export LC_ALL=C
+    export PATH=/usr/games:$PATH
+
+%runscript
+    date | cowsay | lolcat
+
+%help
+    This is a demo container used to illustrate a def file that uses all
+    supported sections. Demo taken from https://apptainer.org/docs/user/main/quick_start.html#apptainer-definition-files
+
+%labels
+    Author Someone
