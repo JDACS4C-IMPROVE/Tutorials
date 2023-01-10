@@ -1,0 +1,38 @@
+Bootstrap: docker
+From: tensorflow/tensorflow:1.15.5-gpu
+
+%labels
+	MAINTAINER Tom Brettin
+
+%setup
+	cp ./src/Singularity_gpu_fix.sh $SINGULARITY_ROOTFS
+  
+%post
+
+  # workaround for older versions
+  apt-get install wget
+  apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F60F4B3D7FA2AF80
+  apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A4B469963BF863CC
+
+  # Required for older versions of singularity
+  chmod +x Singularity_gpu_fix.sh
+	./Singularity_gpu_fix.sh
+
+  # Update and install dependencies 
+	apt-get update
+	apt-get -y install git
+	apt-get install -y vim
+
+  # Install CANDLE
+	python3 -m pip install git+https://github.com/ECP-CANDLE/candle_lib@develop
+
+  # Install Model code, default location is /usr/local/{MODEL_REPO}
+	cd /usr/local/
+	git clone https://github.com/JDACS4C-IMPROVE/{MODEL_REPO}
+  cd /usr/local/tCNNS-Project
+  git checkout develop
+
+	# this assumes a train.sh, infer.sh are committed to the <model> repository.
+	chmod a+x train.sh
+	cp train.sh /usr/local/bin
+	mkdir /candle_data_dir
